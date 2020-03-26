@@ -10,6 +10,7 @@ import 'screens/assets_object.dart';
 import 'screens/auto_detect_plane.dart';
 import 'screens/remote_object.dart';
 import 'screens/measurement_screen.dart';
+import 'screens/perform_hit_test.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -96,6 +97,13 @@ class HomeScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => MeasurementScreen()));
             },
             title: Text("Measurements"),
+          ),
+          ListTile(
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => PerformHitTestScreen()));
+            },
+            title: Text("Perform Hit Test"),
           ),
         ],
       ),

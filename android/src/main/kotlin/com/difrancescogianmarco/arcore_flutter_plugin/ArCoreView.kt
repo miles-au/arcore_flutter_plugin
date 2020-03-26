@@ -155,6 +155,10 @@ class ArCoreView(val activity: Activity, context: Context, messenger: BinaryMess
             "init" -> {
                 arSceneViewInit(call, result, activity)
             }
+            "performHitTestOnPlane" ->{
+                val map = call.arguments as HashMap<String, Double>
+                performHitTestOnPlane(map["x"] as Double, map["y"] as Double, result)
+            }
             "addArCoreNode" -> {
                 Log.i(TAG, " addArCoreNode")
                 val map = call.arguments as HashMap<String, Any>
@@ -340,6 +344,34 @@ class ArCoreView(val activity: Activity, context: Context, messenger: BinaryMess
                 }
             }
             result.success(null)
+        }
+    }
+
+    fun performHitTestOnPlane(x: Double, y: Double, result: MethodChannel.Result?){
+        val xCoord = x?.toFloat() ?: 0.5f
+        val yCoord = y?.toFloat() ?: 0.5f
+        Log.i(TAG, " performHitTestOnPlane")
+        val frame = arSceneView?.arFrame
+        if (frame != null) {
+            if (frame.camera.trackingState == TrackingState.TRACKING) {
+                val hitList = frame.hitTest(arSceneView!!.width * xCoord, arSceneView!!.height * yCoord)
+                val list = ArrayList<HashMap<String, Any>>()
+                for (hit in hitList) {
+                    val trackable = hit.trackable
+                    if (trackable is Plane && trackable.isPoseInPolygon(hit.hitPose)) {
+                        hit.hitPose
+                        val distance: Float = hit.distance
+                        val translation = hit.hitPose.translation
+                        val rotation = hit.hitPose.rotationQuaternion
+                        val flutterArCoreHitTestResult = FlutterArCoreHitTestResult(distance, translation, rotation)
+                        val arguments = flutterArCoreHitTestResult.toHashMap()
+                        list.add(arguments)
+                    }
+                }
+                result?.success(list)
+            }
+        }else{
+            result?.success(null)
         }
     }
 

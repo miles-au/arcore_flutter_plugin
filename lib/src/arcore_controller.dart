@@ -104,6 +104,26 @@ class ArCoreController {
     return Future.value();
   }
 
+  /// Perform Hit Test
+  /// defaults to center of the screen.
+  /// x and y values are between 0 and 1
+  Future<List<ArCoreHitTestResult>> performHitTestOnPlane(
+      {double x = 0.5, double y = 0.5}) async {
+    assert(x >= 0 && y >= 0 && x <= 1 && y <= 1);
+    final List<dynamic> results =
+        await _channel.invokeMethod('performHitTestOnPlane', {'x': x, 'y': y});
+    if (results == null) {
+      return [];
+    } else {
+      final objects = results
+          .cast<Map<dynamic, dynamic>>()
+          .map<ArCoreHitTestResult>(
+              (Map<dynamic, dynamic> r) => ArCoreHitTestResult.fromMap(r))
+          .toList();
+      return objects;
+    }
+  }
+
   Future<void> addArCoreNode(ArCoreNode node, {String parentNodeName}) {
     assert(node != null);
     final params = _addParentNodeNameToParams(node.toMap(), parentNodeName);
