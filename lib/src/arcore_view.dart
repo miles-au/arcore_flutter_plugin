@@ -10,8 +10,6 @@ enum ArCoreViewType { AUGMENTEDFACE, STANDARDVIEW, AUGMENTEDIMAGES }
 class ArCoreView extends StatefulWidget {
   final ArCoreViewCreatedCallback onArCoreViewCreated;
 
-//  final UnsupportedHandler onArCoreUnsupported;
-
   final bool enableTapRecognizer;
   final bool enableUpdateListener;
   final bool forceTapOnScreenCenter;
@@ -20,7 +18,6 @@ class ArCoreView extends StatefulWidget {
   const ArCoreView({
     Key key,
     @required this.onArCoreViewCreated,
-//    @required this.onArCoreUnsupported,
     this.enableTapRecognizer = false,
     this.enableUpdateListener = false,
     this.forceTapOnScreenCenter = false,
@@ -64,7 +61,6 @@ class _ArCoreViewState extends State<ArCoreView> with WidgetsBindingObserver {
       enableTapRecognizer: widget.enableTapRecognizer,
       enableUpdateListener: widget.enableUpdateListener,
       forceTapOnScreenCenter: widget.forceTapOnScreenCenter,
-//      onUnsupported: widget.onArCoreUnsupported,
     ));
   }
 

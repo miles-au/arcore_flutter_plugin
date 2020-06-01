@@ -12,6 +12,7 @@ import 'arcore_plane.dart';
 
 typedef StringResultHandler = void Function(String text);
 typedef UnsupportedHandler = void Function(String text);
+typedef FrameUpdateHandler = void Function(int time);
 typedef ArCoreHitResultHandler = void Function(List<ArCoreHitTestResult> hits);
 typedef ArCorePlaneHandler = void Function(ArCorePlane plane);
 typedef ArCoreAugmentedImageTrackingHandler = void Function(
@@ -31,7 +32,6 @@ class ArCoreController {
     this.enableTapRecognizer,
     this.enableUpdateListener,
     this.forceTapOnScreenCenter,
-//    @required this.onUnsupported,
   }) {
     _channel = MethodChannel('arcore_flutter_plugin_$id');
     _channel.setMethodCallHandler(_handleMethodCalls);
@@ -45,9 +45,9 @@ class ArCoreController {
   StringResultHandler onError;
   StringResultHandler onNodeTap;
 
-//  UnsupportedHandler onUnsupported;
   ArCoreHitResultHandler onPlaneTap;
   ArCorePlaneHandler onPlaneDetected;
+  FrameUpdateHandler onFrameUpdate;
   ArCoreAugmentedImageTrackingHandler onTrackingImage;
 
   init() async {
@@ -63,7 +63,6 @@ class ArCoreController {
   }
 
   Future<dynamic> _handleMethodCalls(MethodCall call) async {
-    print('_platformCallHandler call ${call.method} ${call.arguments}');
     switch (call.method) {
       case 'onError':
         if (onError != null) {
@@ -98,8 +97,15 @@ class ArCoreController {
             ArCoreAugmentedImage.fromMap(call.arguments);
         onTrackingImage(arCoreAugmentedImage);
         break;
+      case 'onFrameUpdate':
+        if (enableUpdateListener && onFrameUpdate != null) {
+          final time = call.arguments['time'];
+          onFrameUpdate(time);
+          print('frame time: $time - ${time.runtimeType}');
+        }
+        break;
       default:
-        print('Unknowm method ${call.method} ');
+        print('Unknown method ${call.method} ');
     }
     return Future.value();
   }

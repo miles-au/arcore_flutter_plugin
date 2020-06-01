@@ -1,7 +1,6 @@
 import 'package:arcore_flutter_plugin/arcore_flutter_plugin.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:math';
 import 'package:vector_math/vector_math_64.dart';
 
 class PerformHitTestScreen extends StatefulWidget {
@@ -10,10 +9,10 @@ class PerformHitTestScreen extends StatefulWidget {
 }
 
 class _PerformHitTestScreenState extends State<PerformHitTestScreen> {
-  final double scale = 0.005;
+  final double scale = 0.01;
   Vector3 scaleVector;
   ArCoreController arCoreController;
-//  ArCorePlane plane;
+  ArCoreNode node;
 
   @override
   void initState() {
@@ -31,31 +30,33 @@ class _PerformHitTestScreenState extends State<PerformHitTestScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Perform Hit Test'),
+        title: const Text('Real Time Update'),
       ),
       body: ArCoreView(
         onArCoreViewCreated: _onArCoreViewCreated,
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () {
-          print("pressed");
-          arCoreController.performHitTestOnPlane().then((results) {
-            print("results: $results");
-            _addNode(results);
-          });
-        },
+        enableUpdateListener: true,
       ),
     );
   }
 
   void _onArCoreViewCreated(ArCoreController controller) {
     arCoreController = controller;
-    arCoreController.onPlaneDetected = (plane) {};
+    arCoreController.onFrameUpdate = (time) {
+      arCoreController.performHitTestOnPlane().then((results) {
+        if (results.isNotEmpty) {
+          if (node == null) {
+            _addNode(results);
+          } else {
+            _moveNode(results);
+          }
+        }
+      });
+    };
   }
 
   void _addNode(List<ArCoreHitTestResult> results) {
     final ArCoreHitTestResult hit = results.first;
+    if (hit == null) return;
 
     final material = ArCoreMaterial(
       color: Color.fromRGBO(255, 255, 255, 1),
@@ -68,12 +69,19 @@ class _PerformHitTestScreenState extends State<PerformHitTestScreen> {
       radius: 1,
     );
 
-    final node = ArCoreNode(
+    node = ArCoreNode(
         scale: scaleVector,
         shape: shape,
         position: hit.pose.translation,
         rotation: hit.pose.rotation);
 
     arCoreController.addArCoreNode(node);
+  }
+
+  void _moveNode(List<ArCoreHitTestResult> results) {
+    final ArCoreHitTestResult hit = results.first;
+    if (hit == null) return;
+    arCoreController.removeNode(nodeName: node.name);
+    _addNode(results);
   }
 }

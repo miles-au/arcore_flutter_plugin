@@ -48,12 +48,15 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
               ],
             ),
           ),
-          const Center(
-            child: Icon(
-              Icons.add,
-              color: Color.fromRGBO(255, 255, 255, 1),
-              size: 50.0,
-            ),
+          Center(
+            child: plane == null
+                ? Text(
+                    'Move the phone side to side until a plane of white dots appears.')
+                : Icon(
+                    Icons.add,
+                    color: Color.fromRGBO(255, 255, 255, 1),
+                    size: 50.0,
+                  ),
           ),
         ],
       ),
@@ -64,7 +67,9 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
     arCoreController = controller;
     arCoreController.onPlaneTap = _onPlaneTap;
     arCoreController.onPlaneDetected = (plane) {
-      this.plane = plane;
+      setState(() {
+        this.plane = plane;
+      });
     };
   }
 

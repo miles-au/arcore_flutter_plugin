@@ -1,5 +1,6 @@
 package com.difrancescogianmarco.arcore_flutter_plugin
 
+import java.util.concurrent.TimeUnit
 import android.app.Activity
 import android.app.Application
 import android.content.Context
@@ -67,6 +68,7 @@ class ArCoreView(val activity: Activity, context: Context, messenger: BinaryMess
                 })
 
         sceneUpdateListener = Scene.OnUpdateListener { frameTime ->
+            methodChannel.invokeMethod("onFrameUpdate", mapOf("time" to frameTime.getStartTime(TimeUnit.MILLISECONDS)) )
 
             val frame = arSceneView?.arFrame ?: return@OnUpdateListener
 
@@ -350,7 +352,6 @@ class ArCoreView(val activity: Activity, context: Context, messenger: BinaryMess
     fun performHitTestOnPlane(x: Double, y: Double, result: MethodChannel.Result?){
         val xCoord = x?.toFloat() ?: 0.5f
         val yCoord = y?.toFloat() ?: 0.5f
-        Log.i(TAG, " performHitTestOnPlane")
         val frame = arSceneView?.arFrame
         if (frame != null) {
             if (frame.camera.trackingState == TrackingState.TRACKING) {
@@ -379,17 +380,6 @@ class ArCoreView(val activity: Activity, context: Context, messenger: BinaryMess
 
         Log.i(TAG, flutterArCoreNode.toString())
         NodeFactory.makeNode(activity.applicationContext, flutterArCoreNode) { node, throwable ->
-
-            Log.i(TAG, "onAddNode inserted ${node?.name}")
-
-/*            if (flutterArCoreNode.parentNodeName != null) {
-                Log.i(TAG, flutterArCoreNode.parentNodeName);
-                val parentNode: Node? = arSceneView?.scene?.findByName(flutterArCoreNode.parentNodeName)
-                parentNode?.addChild(node)
-            } else {
-                Log.i(TAG, "addNodeToSceneWithGeometry: NOT PARENT_NODE_NAME")
-                arSceneView?.scene?.addChild(node)
-            }*/
             if (node != null) {
                 attachNodeToParent(node, flutterArCoreNode.parentNodeName)
                 for (n in flutterArCoreNode.children) {

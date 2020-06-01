@@ -43,7 +43,7 @@ class _ObjectWithTextureAndRotationState
   }
 
   Future _addSphere(ArCoreController controller) async {
-    final ByteData textureBytes = await rootBundle.load('assets/italia.png');
+    final ByteData textureBytes = await rootBundle.load('assets/earth.jpg');
 
     final material = ArCoreMaterial(
       color: Color.fromARGB(120, 66, 134, 244),
