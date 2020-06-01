@@ -22,6 +22,7 @@ import com.google.ar.core.exceptions.CameraNotAvailableException
 import com.google.ar.core.exceptions.UnavailableException
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException
 import com.google.ar.sceneform.*
+import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.rendering.Texture
 import com.google.ar.sceneform.ux.AugmentedFaceNode
@@ -180,17 +181,15 @@ class ArCoreView(val activity: Activity, context: Context, messenger: BinaryMess
             }
             "positionChanged" -> {
                 Log.i(TAG, " positionChanged")
-
+                updatePosition(call, result)
             }
             "rotationChanged" -> {
                 Log.i(TAG, " rotationChanged")
                 updateRotation(call, result)
-
             }
             "updateMaterials" -> {
                 Log.i(TAG, " updateMaterials")
                 updateMaterials(call, result)
-
             }
             "loadMesh" -> {
                 val map = call.arguments as HashMap<String, Any>
@@ -377,8 +376,6 @@ class ArCoreView(val activity: Activity, context: Context, messenger: BinaryMess
     }
 
     fun onAddNode(flutterArCoreNode: FlutterArCoreNode, result: MethodChannel.Result?) {
-
-        Log.i(TAG, flutterArCoreNode.toString())
         NodeFactory.makeNode(activity.applicationContext, flutterArCoreNode) { node, throwable ->
             if (node != null) {
                 attachNodeToParent(node, flutterArCoreNode.parentNodeName)
@@ -423,6 +420,15 @@ class ArCoreView(val activity: Activity, context: Context, messenger: BinaryMess
             Log.i(TAG, "rotating value:  ${node.degreesPerSecond}")
             node.degreesPerSecond = degreesPerSecond.toFloat()
         }
+        result.success(null)
+    }
+
+    fun updatePosition(call: MethodCall, result: MethodChannel.Result) {
+        val name = call.argument<String>("name")
+        val node = arSceneView?.scene?.findByName(name)
+        val vectorMap = call.argument<Map<String, Float>>("position") ?: return
+        val position = Vector3(vectorMap["x"]!!, vectorMap["y"]!!, vectorMap["z"]!!)
+        node?.setWorldPosition(position)
         result.success(null)
     }
 

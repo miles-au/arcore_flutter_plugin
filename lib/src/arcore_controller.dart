@@ -47,8 +47,10 @@ class ArCoreController {
 
   ArCoreHitResultHandler onPlaneTap;
   ArCorePlaneHandler onPlaneDetected;
-  FrameUpdateHandler onFrameUpdate;
   ArCoreAugmentedImageTrackingHandler onTrackingImage;
+
+  /// is run on every frame update at the beginning. Returns frame start time in milliseconds
+  FrameUpdateHandler onFrameUpdate;
 
   init() async {
     try {
@@ -101,7 +103,6 @@ class ArCoreController {
         if (enableUpdateListener && onFrameUpdate != null) {
           final time = call.arguments['time'];
           onFrameUpdate(time);
-          print('frame time: $time - ${time.runtimeType}');
         }
         break;
       default:
@@ -178,8 +179,12 @@ class ArCoreController {
   }
 
   void _handlePositionChanged(ArCoreNode node) {
-    _channel.invokeMethod<void>('positionChanged',
-        _getHandlerParams(node, convertVector3ToMap(node.position.value)));
+    _channel.invokeMethod<void>(
+        'positionChanged',
+        _getHandlerParams(node, {
+          'name': node.name,
+          'position': convertVector3ToMap(node.position.value)
+        }));
   }
 
   void _handleRotationChanged(ArCoreRotatingNode node) {

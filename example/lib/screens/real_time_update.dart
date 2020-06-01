@@ -81,7 +81,6 @@ class _PerformHitTestScreenState extends State<PerformHitTestScreen> {
   void _moveNode(List<ArCoreHitTestResult> results) {
     final ArCoreHitTestResult hit = results.first;
     if (hit == null) return;
-    arCoreController.removeNode(nodeName: node.name);
-    _addNode(results);
+    node.position.value = hit.pose.translation;
   }
 }
